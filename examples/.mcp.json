@@ -1,0 +1,80 @@
+{
+  "mcpServers": {
+    "aws-local": {
+      "_comment": "AWS CLI via LocalStack (local development, read-write). No credentials needed — LocalStack runs locally.",
+      "type": "stdio",
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "--network", "host",
+        "-e", "AWS_ENDPOINT_URL",
+        "-e", "AWS_DEFAULT_REGION",
+        "-e", "AWS_ACCESS_KEY_ID",
+        "-e", "AWS_SECRET_ACCESS_KEY",
+        "-e", "MCP_DESCRIPTION",
+        "-e", "MCP_EXAMPLES",
+        "cli-mcp:latest", "aws"
+      ],
+      "env": {
+        "AWS_ENDPOINT_URL": "http://localhost:4566",
+        "AWS_DEFAULT_REGION": "us-east-1",
+        "AWS_ACCESS_KEY_ID": "test",
+        "AWS_SECRET_ACCESS_KEY": "test",
+        "MCP_DESCRIPTION": "AWS CLI via LocalStack (local, read-write)",
+        "MCP_EXAMPLES": "[\"sqs list-queues\",\"sns list-topics\",\"dynamodb list-tables\",\"ssm get-parameters-by-path --path /my-app --recursive\"]"
+      }
+    },
+    "aws-staging": {
+      "_comment": "AWS CLI for a staging account (read-only). Credential-driven: exits if keys not set.",
+      "type": "stdio",
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "-e", "AWS_ACCESS_KEY_ID",
+        "-e", "AWS_SECRET_ACCESS_KEY",
+        "-e", "AWS_DEFAULT_REGION",
+        "-e", "MCP_REQUIRED_ENV",
+        "-e", "MCP_ALLOWED_PATTERNS",
+        "-e", "MCP_BLOCKED_PATTERNS",
+        "-e", "MCP_STRIP_ARGS",
+        "-e", "MCP_PREPEND_ARGS",
+        "-e", "MCP_DESCRIPTION",
+        "-e", "MCP_EXAMPLES",
+        "cli-mcp:latest", "aws"
+      ],
+      "env": {
+        "AWS_ACCESS_KEY_ID": "${STG_AWS_KEY:-}",
+        "AWS_SECRET_ACCESS_KEY": "${STG_AWS_SECRET:-}",
+        "AWS_DEFAULT_REGION": "us-east-1",
+        "MCP_REQUIRED_ENV": "AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY",
+        "MCP_ALLOWED_PATTERNS": "get-*,list-*,describe-*,query",
+        "MCP_BLOCKED_PATTERNS": "delete-*,put-*,create-*,update-*,terminate-*,run-*,start-*,stop-*",
+        "MCP_STRIP_ARGS": "[\"--profile\",\"--endpoint-url\"]",
+        "MCP_PREPEND_ARGS": "[\"--output\",\"json\"]",
+        "MCP_DESCRIPTION": "AWS CLI for staging (read-only)",
+        "MCP_EXAMPLES": "[\"ssm get-parameters-by-path --path /my-app --recursive\",\"logs describe-log-groups\",\"ecs list-clusters\",\"dynamodb list-tables\"]"
+      }
+    },
+    "gh": {
+      "_comment": "GitHub CLI wrapper. Credential-driven: exits if token not set.",
+      "type": "stdio",
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "-e", "GH_TOKEN",
+        "-e", "MCP_REQUIRED_ENV",
+        "-e", "MCP_BLOCKED_PATTERNS",
+        "-e", "MCP_DESCRIPTION",
+        "-e", "MCP_EXAMPLES",
+        "cli-mcp:latest", "gh"
+      ],
+      "env": {
+        "GH_TOKEN": "${GITHUB_TOKEN:-}",
+        "MCP_REQUIRED_ENV": "GH_TOKEN",
+        "MCP_BLOCKED_PATTERNS": "repo delete,repo archive,ssh-key delete",
+        "MCP_DESCRIPTION": "GitHub CLI (repos, PRs, issues, actions, API)",
+        "MCP_EXAMPLES": "[\"pr list --state open --json number,title\",\"pr view 42 --json title,body,checks\",\"issue list --label bug\",\"run list --limit 5\",\"api repos/owner/repo/pulls --jq '.[].title'\"]"
+      }
+    }
+  }
+}

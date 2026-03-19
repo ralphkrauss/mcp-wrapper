@@ -1,0 +1,18 @@
+{
+  "name": "cli-mcp",
+  "version": "1.0.0",
+  "description": "Generic CLI-to-MCP wrapper — turn any CLI tool into a safe MCP server with guardrails",
+  "type": "module",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "node --test dist/__tests__/tokenizer.test.js dist/__tests__/guardrails.test.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.18",
+    "typescript": "^5.9.3"
+  }
+}
